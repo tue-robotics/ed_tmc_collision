@@ -33,3 +33,5 @@ jobs:
         uses: tue-robotics/tue-env/ci/main@master
         with:
           package: ${{ matrix.package }}
+          ssh-key: ${{ secrets.SSH_DEPLOY_KEY }}
+          ssh-known-hosts: github.com
