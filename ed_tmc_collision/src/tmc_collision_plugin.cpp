@@ -11,6 +11,7 @@
 
 #include <geometry_msgs/Pose.h>
 
+#include <ros/console.h>
 #include <ros/node_handle.h>
 #include <ros/advertise_service_options.h>
 
@@ -126,11 +127,21 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
         object_msg.id.name = e->id().str();
         object_msg.header.frame_id = e->id().str();
         object_msg.header.stamp = ros::Time::now();
+
+        geometry_msgs::TransformStamped transform_msg;
+        try
+        {
+            transform_msg = tf_buffer_->lookupTransform(req.frame_id, "map", ros::Time(0));
+        }
+        catch(tf2::TransformException& exc)
+        {
+            ROS_DEBUG_STREAM_NAMED("tmc_collision", "Could not lookup the tranform from 'map' to '" << req.frame_id << "'\n" << exc.what());
+            continue;
+        }
         msg.known_objects.push_back(object_msg);
 
-        // ToDo: Change to requested frame. Requires pose transformations
         msg.poses.push_back(geometry_msgs::Pose());
-        geometry_msgs::TransformStamped transform_msg = tf_buffer_->lookupTransform(req.frame_id, "map", ros::Time(0));
+
         geo::Transform transform;
         geo::convert(transform_msg.transform, transform);
         geo::convert(transform * e->pose(), msg.poses.back());
