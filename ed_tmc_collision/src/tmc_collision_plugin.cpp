@@ -83,7 +83,7 @@ void TMCCollisionPlugin::process(const ed::WorldModel& world, ed::UpdateRequest&
 
 // ----------------------------------------------------------------------------------------------------
 
-bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs::GetCollisionEnvironment::Request& /*req*/, ed_tmc_collision_msgs::GetCollisionEnvironment::Response& res)
+bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs::GetCollisionEnvironment::Request& req, ed_tmc_collision_msgs::GetCollisionEnvironment::Response& res)
 {
     ROS_INFO("[ED TMC Collision] Generating collision environment");
     tmc_manipulation_msgs::CollisionEnvironment& msg = res.collision_environment;
@@ -132,6 +132,9 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
         msg.poses.push_back(geometry_msgs::Pose());
         geo::convert(e->pose(), msg.poses.back());
     }
+
+    msg.header.frame_id = req.frame_id;
+    msg.header.stamp = ros::Time::now();
 
     return true;
 }
