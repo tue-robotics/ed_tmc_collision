@@ -52,6 +52,7 @@ TMCCollisionPlugin::TMCCollisionPlugin()
 
 TMCCollisionPlugin::~TMCCollisionPlugin()
 {
+    srv_get_collision_environment_.shutdown();
 }
 
 // ----------------------------------------------------------------------------------------------------
