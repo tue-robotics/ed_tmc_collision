@@ -2,7 +2,7 @@
 #define ed_tmc_collision_plugin_h_
 
 #include <ed/plugin.h>
-#include <ed/world_model.h>
+#include <ed/types.h>
 
 #include <ed_tmc_collision_msgs/GetCollisionEnvironment.h>
 
