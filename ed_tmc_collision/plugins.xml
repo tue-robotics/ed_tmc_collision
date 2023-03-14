@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<class_libraries>
+  <library path="lib/libed_tmc_collision_plugin">
+    <class name="ed_tmc_collision/tmc_collision" type="TMCCollisionPlugin" base_class_type="ed::Plugin">
+      <description>Plugin to provide a TMC ollision environment</description>
+    </class>
+  </library>
+</class_libraries>
