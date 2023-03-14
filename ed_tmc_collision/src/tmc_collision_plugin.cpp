@@ -119,7 +119,7 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
 
         // Object is defined in own frame. Shape has identity pose relative to this frame.
         object_msg.poses.resize(1);
-        object_msg.poses.end()->orientation.w = 1.;
+        object_msg.poses.back().orientation.w = 1.;
 
         object_msg.operation.operation = tmc_manipulation_msgs::CollisionObjectOperation::ADD;
         object_msg.id.object_id = object_id++;
