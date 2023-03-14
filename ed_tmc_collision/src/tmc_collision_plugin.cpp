@@ -130,7 +130,10 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
 
         // ToDo: Change to requested frame. Requires pose transformations
         msg.poses.push_back(geometry_msgs::Pose());
-        geo::convert(e->pose(), msg.poses.back());
+        geometry_msgs::TransformStamped transform_msg = tf_buffer_->lookupTransform(req.frame_id, "map", ros::Time(0));
+        geo::Transform transform;
+        geo::convert(transform_msg.transform, transform);
+        geo::convert(transform * e->pose(), msg.poses.back());
     }
 
     msg.header.frame_id = req.frame_id;
