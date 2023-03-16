@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   tmc_manipulation_msgs
 )
 
+find_package(Boost REQUIRED COMPONENTS filesystem)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -20,7 +22,7 @@ catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}_plugin
   CATKIN_DEPENDS ed ${PROJECT_NAME}_msgs roscpp
-#  DEPENDS system_lib
+  DEPENDS Boost
 )
 
 ###########
@@ -30,6 +32,7 @@ catkin_package(
 include_directories(
 # include
   SYSTEM
+  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -37,7 +40,7 @@ add_library(${PROJECT_NAME}_plugin
   src/tmc_collision_plugin.cpp
   src/tmc_collision_plugin.h
 )
-target_link_libraries(${PROJECT_NAME}_plugin ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_plugin ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_plugin ${catkin_EXPORTED_TARGETS})
 
 #############

@@ -18,6 +18,7 @@
 
   <depend>ed</depend>
   <depend>ed_tmc_collision_msgs</depend>
+  <depend>libboost-filesystem-dev</depend>
   <depend>roscpp</depend>
 
   <build_depend>geolib2</build_depend>

@@ -1,5 +1,8 @@
 #include "tmc_collision_plugin.h"
 
+#include <boost/filesystem/operations.hpp>
+
+#include <ed/error_context.h>
 #include <ed/entity.h>
 #include <ed/world_model.h>
 #include <ed/update_request.h>
@@ -18,6 +21,11 @@
 #include <tmc_manipulation_msgs/CollisionEnvironment.h>
 #include <tmc_manipulation_msgs/CollisionObject.h>
 #include <tmc_manipulation_msgs/CollisionObjectOperation.h>
+
+using boost::filesystem::create_directories;
+using boost::filesystem::remove_all;
+using boost::filesystem::temp_directory_path;
+using boost::filesystem::unique_path;
 
 
 // ----------------------------------------------------------------------------------------------------
@@ -45,15 +53,21 @@ void convert(const geo::Mesh& m, tmc_geometric_shapes_msgs::Shape& msg)
 
 // ----------------------------------------------------------------------------------------------------
 
-TMCCollisionPlugin::TMCCollisionPlugin()
+TMCCollisionPlugin::TMCCollisionPlugin() : mesh_file_directory_(temp_directory_path()/=unique_path())
 {
+    ed::ErrorContext errc("tmc_collision", "constructor");
+    ROS_DEBUG_STREAM_NAMED("tmc_collision", "mesh_file_directory_: " << mesh_file_directory_);
+    create_directories(mesh_file_directory_);
 }
 
 // ----------------------------------------------------------------------------------------------------
 
 TMCCollisionPlugin::~TMCCollisionPlugin()
 {
+    ed::ErrorContext errc("tmc_collision", "destructor");
     srv_get_collision_environment_.shutdown();
+
+    remove_all(mesh_file_directory_);
 }
 
 // ----------------------------------------------------------------------------------------------------

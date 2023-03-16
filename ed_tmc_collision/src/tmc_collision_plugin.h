@@ -1,12 +1,15 @@
 #ifndef ed_tmc_collision_plugin_h_
 #define ed_tmc_collision_plugin_h_
 
+#include <boost/filesystem/path.hpp>
+
 #include <ed/plugin.h>
 #include <ed/types.h>
 
 #include <ed_tmc_collision_msgs/GetCollisionEnvironment.h>
 
 #include <ros/callback_queue.h>
+
 
 /**
  * @brief The TMCCollisionPlugin class
@@ -61,6 +64,11 @@ private:
     ros::CallbackQueue cb_queue_;
 
     const ed::WorldModel* world_;
+
+    /**
+     * @brief mesh_file_directory_ Folder where mesh files are stored
+     */
+    const boost::filesystem::path mesh_file_directory_;
 };
 
 #endif
