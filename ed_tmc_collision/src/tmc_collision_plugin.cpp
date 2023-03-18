@@ -34,7 +34,7 @@ using boost::filesystem::unique_path;
 
 // ----------------------------------------------------------------------------------------------------
 
-TMCCollisionPlugin::TMCCollisionPlugin() : mesh_file_directory_(temp_directory_path()/=unique_path())
+TMCCollisionPlugin::TMCCollisionPlugin() : mesh_file_directory_(temp_directory_path()/=unique_path("ed_tmc_collision-%%%%%"))
 {
     ed::ErrorContext errc("tmc_collision", "constructor");
     ROS_DEBUG_STREAM_NAMED("tmc_collision", "mesh_file_directory_: " << mesh_file_directory_);
