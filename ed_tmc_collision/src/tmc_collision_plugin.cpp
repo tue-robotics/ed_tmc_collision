@@ -133,6 +133,7 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
                     ROS_WARN_STREAM("Could not write shape of entity '" << id << "' to file '" << mesh_file << "'");
                     continue;
                 }
+                entry.shape_revision = e->shapeRevision();
             }
             shape_msg.type = tmc_geometric_shapes_msgs::Shape::MESH;
             shape_msg.stl_file_name = "file://" + mesh_file;
