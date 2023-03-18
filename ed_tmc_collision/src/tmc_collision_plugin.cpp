@@ -8,6 +8,7 @@
 #include <ed/update_request.h>
 
 #include <geolib/Box.h>
+#include <geolib/io/export.h>
 #include <geolib/Mesh.h>
 #include <geolib/Shape.h>
 #include <geolib/ros/msg_conversions.h>
@@ -22,34 +23,14 @@
 #include <tmc_manipulation_msgs/CollisionObject.h>
 #include <tmc_manipulation_msgs/CollisionObjectOperation.h>
 
+#include <tuple>
+#include <string>
+
 using boost::filesystem::create_directories;
 using boost::filesystem::remove_all;
 using boost::filesystem::temp_directory_path;
 using boost::filesystem::unique_path;
 
-
-// ----------------------------------------------------------------------------------------------------
-
-void convert(const geo::Mesh& m, tmc_geometric_shapes_msgs::Shape& msg)
-{
-    msg.type = tmc_geometric_shapes_msgs::Shape::MESH;
-    const std::vector<geo::Vector3>& points = m.getPoints();
-    const std::vector<geo::TriangleI>& triangles = m.getTriangleIs();
-
-    for (std::vector<geo::Vector3>::const_iterator it = points.begin(); it != points.end(); ++it)
-    {
-        geometry_msgs::Point point;
-        convert(*it, point);
-        msg.vertices.push_back(point);
-    }
-
-    for (std::vector<geo::TriangleI>::const_iterator it = triangles.begin(); it != triangles.end(); ++it)
-    {
-        msg.triangles.push_back(it->i1_);
-        msg.triangles.push_back(it->i2_);
-        msg.triangles.push_back(it->i3_);
-    }
-}
 
 // ----------------------------------------------------------------------------------------------------
 
@@ -120,6 +101,7 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
     for(ed::WorldModel::const_iterator it = world_->begin(); it != world_->end(); ++it)
     {
         const ed::EntityConstPtr& e = *it;
+        const ed::UUID& id = e->id();
 
         if (e->id() != "dinner_table" || !e->has_pose() || !e->shape() || e->existenceProbability() < 0.95 || e->hasFlag("self") || e->id() == "floor")
             continue;
@@ -139,8 +121,21 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
         else
         {
             // Do mesh stuff
-            const geo::Mesh& mesh = e->shape()->getMesh();
-            convert(mesh, shape_msg);
+            MeshFileEntry& entry = mesh_file_cache_[id.str()]; // Accesses or inserts element
+            std::string& mesh_file = entry.mesh_file;
+            if (entry.shape_revision != e->shapeRevision())
+            {
+                if (mesh_file.empty())
+                    mesh_file = boost::filesystem::path(mesh_file_directory_).append(id.str() + ".stl").string();
+
+                if (!geo::io::writeMeshFile(mesh_file, *e->shape(), "stl"))
+                {
+                    ROS_WARN_STREAM("Could not write shape of entity '" << id << "' to file '" << mesh_file << "'");
+                    continue;
+                }
+            }
+            shape_msg.type = tmc_geometric_shapes_msgs::Shape::MESH;
+            shape_msg.stl_file_name = "file://" + mesh_file;
         }
 
         tmc_manipulation_msgs::CollisionObject object_msg;

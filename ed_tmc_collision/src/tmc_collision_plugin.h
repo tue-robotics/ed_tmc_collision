@@ -10,6 +10,16 @@
 
 #include <ros/callback_queue.h>
 
+#include <string>
+#include <unordered_map>
+
+struct MeshFileEntry
+{
+public:
+    unsigned long shape_revision;
+    std::string mesh_file;
+};
+
 
 /**
  * @brief The TMCCollisionPlugin class
@@ -69,6 +79,9 @@ private:
      * @brief mesh_file_directory_ Folder where mesh files are stored
      */
     const boost::filesystem::path mesh_file_directory_;
+
+    std::unordered_map<std::string, MeshFileEntry> mesh_file_cache_;
+
 };
 
 #endif
