@@ -101,6 +101,20 @@ void TMCCollisionPlugin::process(const ed::WorldModel& world, ed::UpdateRequest&
 bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs::GetCollisionEnvironment::Request& req, ed_tmc_collision_msgs::GetCollisionEnvironment::Response& res)
 {
     ROS_INFO("[ED TMC Collision] Generating collision environment");
+
+    geometry_msgs::TransformStamped transform_msg;
+    try
+    {
+        transform_msg = tf_buffer_->lookupTransform(req.frame_id, "map", ros::Time(0));
+    }
+    catch(tf2::TransformException& exc)
+    {
+        ROS_DEBUG_STREAM_NAMED("tmc_collision", "Could not lookup the tranform from 'map' to '" << req.frame_id << "'\n" << exc.what());
+        return false;
+    }
+    geo::Transform transform;
+    geo::convert(transform_msg.transform, transform);
+
     tmc_manipulation_msgs::CollisionEnvironment& msg = res.collision_environment;
     uint object_id = 1; // 0 is invalid
     for(ed::WorldModel::const_iterator it = world_->begin(); it != world_->end(); ++it)
@@ -141,23 +155,9 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
         object_msg.id.name = e->id().str();
         object_msg.header.frame_id = e->id().str();
         object_msg.header.stamp = ros::Time::now();
-
-        geometry_msgs::TransformStamped transform_msg;
-        try
-        {
-            transform_msg = tf_buffer_->lookupTransform(req.frame_id, "map", ros::Time(0));
-        }
-        catch(tf2::TransformException& exc)
-        {
-            ROS_DEBUG_STREAM_NAMED("tmc_collision", "Could not lookup the tranform from 'map' to '" << req.frame_id << "'\n" << exc.what());
-            continue;
-        }
         msg.known_objects.push_back(object_msg);
 
         msg.poses.push_back(geometry_msgs::Pose());
-
-        geo::Transform transform;
-        geo::convert(transform_msg.transform, transform);
         geo::convert(transform * e->pose(), msg.poses.back());
     }
 
