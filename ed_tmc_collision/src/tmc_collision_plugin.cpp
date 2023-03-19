@@ -128,7 +128,7 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
                 if (mesh_file.empty())
                     mesh_file = boost::filesystem::path(mesh_file_directory_).append(id.str() + ".stl").string();
 
-                if (!geo::io::writeMeshFile(mesh_file, *e->shape(), "stl"))
+                if (!geo::io::writeMeshFile(mesh_file, *e->shape(), "stlb")) // Only binary STL is accepted by TMC
                 {
                     ROS_WARN_STREAM("Could not write shape of entity '" << id << "' to file '" << mesh_file << "'");
                     continue;
