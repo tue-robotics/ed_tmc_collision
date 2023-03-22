@@ -1,6 +1,8 @@
 #ifndef ed_tmc_collision_plugin_h_
 #define ed_tmc_collision_plugin_h_
 
+#include "http_server.h"
+
 #include <boost/filesystem/path.hpp>
 
 #include <ed/plugin.h>
@@ -10,6 +12,7 @@
 
 #include <ros/callback_queue.h>
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -81,6 +84,8 @@ private:
     const boost::filesystem::path mesh_file_directory_;
 
     std::unordered_map<std::string, MeshFileEntry> mesh_file_cache_;
+
+    std::unique_ptr<HTTPServer> http_server_;
 
 };
 

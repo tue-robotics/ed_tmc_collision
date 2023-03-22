@@ -36,11 +36,18 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_library(boost_http_server src/boost_http_server.cpp src/boost_http_server.h)
+target_link_libraries(boost_http_server ${catkin_LIBRARIES})
+
+add_library(http_server src/http_server.cpp src/http_server.h)
+target_link_libraries(http_server boost_http_server ${catkin_LIBRARIES})
+
+
 add_library(${PROJECT_NAME}_plugin
   src/tmc_collision_plugin.cpp
   src/tmc_collision_plugin.h
 )
-target_link_libraries(${PROJECT_NAME}_plugin ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_plugin http_server ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_plugin ${catkin_EXPORTED_TARGETS})
 
 #############
@@ -54,7 +61,9 @@ install(
 
 install(
   TARGETS
+    boost_http_server
     ${PROJECT_NAME}_plugin
+    http_server
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

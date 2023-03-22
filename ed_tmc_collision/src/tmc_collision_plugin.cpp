@@ -23,6 +23,8 @@
 #include <tmc_manipulation_msgs/CollisionObject.h>
 #include <tmc_manipulation_msgs/CollisionObjectOperation.h>
 
+#include <algorithm>
+#include <cstdlib>
 #include <tuple>
 #include <string>
 
@@ -34,7 +36,7 @@ using boost::filesystem::unique_path;
 
 // ----------------------------------------------------------------------------------------------------
 
-TMCCollisionPlugin::TMCCollisionPlugin() : mesh_file_directory_(temp_directory_path()/=unique_path("ed_tmc_collision-%%%%%"))
+TMCCollisionPlugin::TMCCollisionPlugin() : mesh_file_directory_(temp_directory_path()/=unique_path("ed_tmc_collision-%%%%%")), http_server_(nullptr)
 {
     ed::ErrorContext errc("tmc_collision", "constructor");
     ROS_DEBUG_STREAM_NAMED("tmc_collision", "mesh_file_directory_: " << mesh_file_directory_);
@@ -47,14 +49,29 @@ TMCCollisionPlugin::~TMCCollisionPlugin()
 {
     ed::ErrorContext errc("tmc_collision", "destructor");
     srv_get_collision_environment_.shutdown();
+    if (http_server_)
+        http_server_->stop();
 
     remove_all(mesh_file_directory_);
 }
 
 // ----------------------------------------------------------------------------------------------------
 
-void TMCCollisionPlugin::configure(tue::Configuration /*config*/)
+void TMCCollisionPlugin::configure(tue::Configuration config)
 {
+    uint threads = 1;
+    int port = 8080;
+    const std::string address = "192.168.0.185";
+    if (config.readGroup("http_server", tue::config::OPTIONAL))
+    {
+        config.value("threads", reinterpret_cast<int&>(threads), tue::config::OPTIONAL);
+        config.value("port", port, tue::config::OPTIONAL);
+        config.endGroup();
+    }
+
+    ROS_WARN_STREAM_NAMED("tmc_collision", "Starting HTTP server:\naddress: " << address << "\nport: " << port << "\ndoc_root: " << mesh_file_directory_ << "\nthreads: " << threads);
+    http_server_ = std::make_unique<HTTPServer>(address, static_cast<unsigned short>(port), mesh_file_directory_.string());
+    http_server_->run(threads);
 }
 
 // ----------------------------------------------------------------------------------------------------
