@@ -146,7 +146,11 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
             if (entry.shape_revision != e->shapeRevision())
             {
                 if (mesh_file.empty())
-                    mesh_file = boost::filesystem::path(mesh_file_directory_).append(id.str() + ".stl").string();
+                {
+                    std::string id_str = id.str();
+                    std::replace(id_str.begin(), id_str.end(), '/', '_');
+                    mesh_file = boost::filesystem::path(mesh_file_directory_).append(id_str + ".stl").string();
+                }
 
                 if (!geo::io::writeMeshFile(mesh_file, *e->shape(), "stlb")) // Only binary STL is accepted by TMC
                 {
