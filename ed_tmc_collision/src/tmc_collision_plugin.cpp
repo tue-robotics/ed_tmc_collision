@@ -1,4 +1,5 @@
 #include "tmc_collision_plugin.h"
+#include "get_ip.h"
 
 #include <boost/filesystem/operations.hpp>
 
@@ -61,13 +62,15 @@ void TMCCollisionPlugin::configure(tue::Configuration config)
 {
     uint threads = 1;
     int port = 8080;
-    const std::string address = "192.168.0.185";
-    if (config.readGroup("http_server", tue::config::OPTIONAL))
+    std::string interface;
+    if (config.readGroup("http_server", tue::config::REQUIRED))
     {
+        config.value("interface", interface);
         config.value("threads", reinterpret_cast<int&>(threads), tue::config::OPTIONAL);
         config.value("port", port, tue::config::OPTIONAL);
         config.endGroup();
     }
+    const std::string address = getIPAddress(interface);
 
     ROS_WARN_STREAM_NAMED("tmc_collision", "Starting HTTP server:\naddress: " << address << "\nport: " << port << "\ndoc_root: " << mesh_file_directory_ << "\nthreads: " << threads);
     http_server_ = std::make_unique<HTTPServer>(address, static_cast<unsigned short>(port), mesh_file_directory_.string());

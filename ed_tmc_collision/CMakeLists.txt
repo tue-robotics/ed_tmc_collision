@@ -44,6 +44,7 @@ target_link_libraries(http_server boost_http_server ${catkin_LIBRARIES})
 
 
 add_library(${PROJECT_NAME}_plugin
+  src/get_ip.h
   src/tmc_collision_plugin.cpp
   src/tmc_collision_plugin.h
 )
