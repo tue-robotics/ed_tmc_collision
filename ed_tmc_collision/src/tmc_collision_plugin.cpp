@@ -71,6 +71,7 @@ void TMCCollisionPlugin::configure(tue::Configuration config)
         config.endGroup();
     }
     const std::string address = getIPAddress(interface);
+    msg_server_prefix_ = "http://" + address + ":" + std::to_string(port) + "/";
 
     ROS_WARN_STREAM_NAMED("tmc_collision", "Starting HTTP server:\naddress: " << address << "\nport: " << port << "\ndoc_root: " << mesh_file_directory_ << "\nthreads: " << threads);
     http_server_ = std::make_unique<HTTPServer>(address, static_cast<unsigned short>(port), mesh_file_directory_.string());
@@ -147,12 +148,11 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
             {
                 if (mesh_file.empty())
                 {
-                    std::string id_str = id.str();
-                    std::replace(id_str.begin(), id_str.end(), '/', '_');
-                    mesh_file = boost::filesystem::path(mesh_file_directory_).append(id_str + ".stl").string();
+                    mesh_file = id.str() + ".stl";
+                    std::replace(mesh_file.begin(), mesh_file.end(), '/', '_');
                 }
 
-                if (!geo::io::writeMeshFile(mesh_file, *e->shape(), "stlb")) // Only binary STL is accepted by TMC
+                if (!geo::io::writeMeshFile(boost::filesystem::path(mesh_file_directory_).append(mesh_file).string(), *e->shape(), "stlb")) // Only binary STL is accepted by TMC
                 {
                     ROS_WARN_STREAM("Could not write shape of entity '" << id << "' to file '" << mesh_file << "'");
                     continue;
@@ -160,7 +160,7 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
                 entry.shape_revision = e->shapeRevision();
             }
             shape_msg.type = tmc_geometric_shapes_msgs::Shape::MESH;
-            shape_msg.stl_file_name = "file://" + mesh_file;
+            shape_msg.stl_file_name = msg_server_prefix_ + mesh_file;
         }
 
         tmc_manipulation_msgs::CollisionObject object_msg;

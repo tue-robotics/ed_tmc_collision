@@ -83,6 +83,8 @@ private:
      */
     const boost::filesystem::path mesh_file_directory_;
 
+    std::string msg_server_prefix_;
+
     std::unordered_map<std::string, MeshFileEntry> mesh_file_cache_;
 
     std::unique_ptr<HTTPServer> http_server_;
