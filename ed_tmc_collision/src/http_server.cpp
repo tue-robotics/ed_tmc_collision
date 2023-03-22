@@ -4,10 +4,11 @@
 
 using tcp = boost::asio::ip::tcp; // from <boost/asio/ip/tcp.hpp>
 
-HTTPServer::HTTPServer(const std::string& address,
+
+HTTPServer::HTTPServer(const std::string& doc_root,
                        const unsigned short port,
-                       const std::string& doc_root)
-    : address_(net::ip::make_address(address)), port_(port), doc_root_(std::make_shared<const std::string>(doc_root))
+                       const net::ip::address& address)
+    : address_(address), port_(port), doc_root_(std::make_shared<const std::string>(doc_root))
 {
 }
 

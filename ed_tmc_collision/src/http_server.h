@@ -5,6 +5,7 @@
 
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/address.hpp>
+#include <boost/asio/ip/address_v4.hpp>
 
 #include <memory>
 #include <thread>
@@ -21,7 +22,7 @@ class HTTPServer
 public:
     HTTPServer() = delete;
 
-    HTTPServer(const std::string& address, const unsigned short port, const std::string& doc_root);
+    HTTPServer(const std::string& doc_root, const unsigned short port=8080, const net::ip::address& address=net::ip::address_v4::any());
 
     virtual ~HTTPServer();
 
