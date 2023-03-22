@@ -20,6 +20,9 @@
 #include <boost/beast/version.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/config.hpp>
+
+#include <ros/console.h>
+
 #include <algorithm>
 #include <cstdlib>
 #include <functional>
@@ -210,7 +213,7 @@ handle_request(
 void
 fail(beast::error_code ec, char const* what)
 {
-    std::cerr << what << ": " << ec.message() << "\n";
+    ROS_DEBUG_STREAM_NAMED("boost_http_server", what << ": " << ec.message());
 }
 
 // Handles an HTTP server connection
