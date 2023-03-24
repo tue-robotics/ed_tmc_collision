@@ -61,19 +61,20 @@ void TMCCollisionPlugin::configure(tue::Configuration config)
 {
     uint threads = 1;
     int port = 8080;
-    std::string address;
-    if (config.readGroup("http_server", tue::config::OPTIONAL))
+    std::string address, server_address;
+    if (config.readGroup("http_server", tue::config::REQUIRED))
     {
-        config.value("address", address, tue::config::OPTIONAL);
+        config.value("address", address, tue::config::REQUIRED); // Used in msg; Can be hostname or IP
+        config.value("server_address", server_address, tue::config::OPTIONAL); // Used for the server; Needs to be IP
         config.value("threads", reinterpret_cast<int&>(threads), tue::config::OPTIONAL);
         config.value("port", port, tue::config::OPTIONAL);
         config.endGroup();
     }
     msg_server_prefix_ = "http://" + address + ":" + std::to_string(port) + "/";
 
-    ROS_WARN_STREAM_NAMED("tmc_collision", "Starting HTTP server:\naddress: " << address << "\nport: " << port << "\ndoc_root: " << mesh_file_directory_ << "\nthreads: " << threads);
-    if (!address.empty())
-        http_server_ = std::make_unique<HTTPServer>(mesh_file_directory_.string(), static_cast<unsigned short>(port), net::ip::make_address(address));
+    ROS_WARN_STREAM_NAMED("tmc_collision", "Starting HTTP server:\naddress: " << server_address << "\nport: " << port << "\ndoc_root: " << mesh_file_directory_ << "\nthreads: " << threads);
+    if (!server_address.empty())
+        http_server_ = std::make_unique<HTTPServer>(mesh_file_directory_.string(), static_cast<unsigned short>(port), net::ip::make_address(server_address));
     else
         http_server_ = std::make_unique<HTTPServer>(mesh_file_directory_.string(), static_cast<unsigned short>(port));
     http_server_->run(threads);
