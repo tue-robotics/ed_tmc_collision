@@ -30,6 +30,11 @@ public:
 
     void stop();
 
+    inline const net::ip::address& address() const { return address_; }
+    inline unsigned short port() const { return port_; }
+    inline std::string doc_root() const { return doc_root_ ? *doc_root_ : ""; }
+    inline uint numberOfThreads() const { return threads_.size(); }
+
 private:
     // Configuration
     const net::ip::address address_;
