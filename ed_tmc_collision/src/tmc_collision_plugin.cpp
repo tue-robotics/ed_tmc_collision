@@ -126,11 +126,11 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
         const ed::EntityConstPtr& e = *it;
         const ed::UUID& id = e->id();
 
-        if (e->id() != "dinner_table" || !e->has_pose() || !e->shape() || e->existenceProbability() < 0.95 || e->hasFlag("self") || e->id() == "floor")
+        if (!e->has_pose() || !e->collision() || e->existenceProbability() < 0.95 || e->hasFlag("self") || e->id() == "floor")
             continue;
 
         tmc_geometric_shapes_msgs::Shape shape_msg;
-        const geo::BoxConstPtr box = std::dynamic_pointer_cast<const geo::Box>(e->shape());
+        const geo::BoxConstPtr box = std::dynamic_pointer_cast<const geo::Box>(e->collision());
         if (box)
         {
             // Do box stuff
@@ -146,7 +146,7 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
             // Do mesh stuff
             MeshFileEntry& entry = mesh_file_cache_[id.str()]; // Accesses or inserts element
             std::string& mesh_file = entry.mesh_file;
-            if (entry.shape_revision != e->shapeRevision())
+            if (entry.collision_revision != e->collisionRevision())
             {
                 if (mesh_file.empty())
                 {
@@ -154,12 +154,12 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
                     std::replace(mesh_file.begin(), mesh_file.end(), '/', '_');
                 }
 
-                if (!geo::io::writeMeshFile(boost::filesystem::path(mesh_file_directory_).append(mesh_file).string(), *e->shape(), "stlb")) // Only binary STL is accepted by TMC
+                if (!geo::io::writeMeshFile(boost::filesystem::path(mesh_file_directory_).append(mesh_file).string(), *e->collision(), "stlb")) // Only binary STL is accepted by TMC
                 {
                     ROS_WARN_STREAM("Could not write shape of entity '" << id << "' to file '" << mesh_file << "'");
                     continue;
                 }
-                entry.shape_revision = e->shapeRevision();
+                entry.collision_revision = e->collisionRevision();
             }
             shape_msg.type = tmc_geometric_shapes_msgs::Shape::MESH;
             shape_msg.stl_file_name = msg_server_prefix_ + mesh_file;

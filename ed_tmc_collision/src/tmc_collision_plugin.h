@@ -19,7 +19,7 @@
 struct MeshFileEntry
 {
 public:
-    unsigned long shape_revision;
+    unsigned long collision_revision;
     std::string mesh_file;
 };
 
