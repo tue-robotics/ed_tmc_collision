@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <cmath>
 #include <tuple>
 #include <string>
 
@@ -121,12 +122,21 @@ bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs:
 
     tmc_manipulation_msgs::CollisionEnvironment& msg = res.collision_environment;
     uint object_id = 1; // 0 is invalid
-    for(ed::WorldModel::const_iterator it = world_->begin(); it != world_->end(); ++it)
+    for (ed::WorldModel::const_iterator it = world_->begin(); it != world_->end(); ++it)
     {
         const ed::EntityConstPtr& e = *it;
         const ed::UUID& id = e->id();
 
-        if (!e->has_pose() || !e->collision() || e->existenceProbability() < 0.95 || e->hasFlag("self") || e->id() == "floor")
+        // General filtering
+        if (!e->has_pose() || !e->collision() || e->existenceProbability() < 0.95 || e->hasFlag("self") || (id.str().size() >= 5 && id.str().substr(0, 5) == "floor"))
+            continue;
+
+        const decltype(req.required_entities)& req_entities = req.required_entities;
+        bool required_as_wall = req.include_walls && id.str().substr(0, 4) == "wall";
+        bool required_by_id = std::find(req_entities.begin(), req_entities.end(), id.str()) == req_entities.end();
+        bool required_by_distance = std::isinf(req.entity_range) || true; // ToDo: add distance calculations
+
+        if (!required_as_wall && !required_by_id && !required_by_distance)
             continue;
 
         tmc_geometric_shapes_msgs::Shape shape_msg;
