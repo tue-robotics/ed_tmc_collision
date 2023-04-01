@@ -73,7 +73,7 @@ void TMCCollisionPlugin::configure(tue::Configuration config)
     }
     msg_server_prefix_ = "http://" + address + ":" + std::to_string(port) + "/";
 
-    ROS_WARN_STREAM_NAMED("tmc_collision", "Starting HTTP server:\naddress: " << server_address << "\nport: " << port << "\ndoc_root: " << mesh_file_directory_ << "\nthreads: " << threads);
+    ROS_INFO_STREAM_NAMED("tmc_collision", "Starting HTTP server:\naddress: " << server_address << "\nport: " << port << "\ndoc_root: " << mesh_file_directory_ << "\nthreads: " << threads);
     if (!server_address.empty())
         http_server_ = std::make_unique<HTTPServer>(mesh_file_directory_.string(), static_cast<unsigned short>(port), net::ip::make_address(server_address));
     else
