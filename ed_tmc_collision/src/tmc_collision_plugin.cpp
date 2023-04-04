@@ -48,7 +48,7 @@ TMCCollisionPlugin::TMCCollisionPlugin() : mesh_file_directory_(temp_directory_p
 
 TMCCollisionPlugin::~TMCCollisionPlugin()
 {
-    ed::ErrorContext errc("tmc_collision", "destructor");
+    ed::ErrorContext errc("destructor");
     srv_get_collision_environment_.shutdown();
     if (http_server_)
         http_server_->stop();
@@ -60,6 +60,7 @@ TMCCollisionPlugin::~TMCCollisionPlugin()
 
 void TMCCollisionPlugin::configure(tue::Configuration config)
 {
+    ed::ErrorContext errc("configure");
     uint threads = 1;
     int port = 8080;
     std::string address, server_address;
@@ -85,6 +86,7 @@ void TMCCollisionPlugin::configure(tue::Configuration config)
 
 void TMCCollisionPlugin::initialize()
 {
+    ed::ErrorContext errc("initialize");
     ros::NodeHandle nh("~/tmc_collision");
 
     ros::AdvertiseServiceOptions opt_get_collision_environment =
@@ -97,6 +99,7 @@ void TMCCollisionPlugin::initialize()
 
 void TMCCollisionPlugin::process(const ed::WorldModel& world, ed::UpdateRequest& /*req*/)
 {
+    ed::ErrorContext errc("process");
     world_ = &world;
     cb_queue_.callAvailable();
 }
@@ -105,6 +108,7 @@ void TMCCollisionPlugin::process(const ed::WorldModel& world, ed::UpdateRequest&
 
 bool TMCCollisionPlugin::srvGetCollisionEnvironment(const ed_tmc_collision_msgs::GetCollisionEnvironment::Request& req, ed_tmc_collision_msgs::GetCollisionEnvironment::Response& res)
 {
+    ed::ErrorContext errc("srvGetCollisionEnvironment");
     ROS_INFO("[ED TMC Collision] Generating collision environment");
 
     geometry_msgs::TransformStamped transform_msg;
