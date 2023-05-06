@@ -1,0 +1,6 @@
+string frame_id
+float32 entity_range  # Entities in this range relative to the frame_id
+string[] required_entities
+bool include_walls
+---
+tmc_manipulation_msgs/CollisionEnvironment collision_environment
