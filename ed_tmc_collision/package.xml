@@ -5,7 +5,7 @@
 <package format="3">
   <name>ed_tmc_collision</name>
   <version>0.1.0</version>
-  <description>Pliugin for the ED world model to generate TMC collision environments for motion planning</description>
+  <description>Plugin for the ED world model to generate TMC collision environments for motion planning</description>
 
   <maintainer email="MatthijsBurgh@outlook.com">Matthijs van der Burgh</maintainer>
 
@@ -14,24 +14,24 @@
   <url type="repository">http://github.com/tue-robotics/ed_tmc_collision.git</url>
   <url type="bugtracker">http://github.com/tue-robotics/ed_tmc_collision/issues</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>ed</depend>
-  <depend>ed_tmc_collision_msgs</depend>
+  <depend>ed_tmc_collision_interfaces</depend>
   <depend>libboost-filesystem-dev</depend>
-  <depend>roscpp</depend>
+  <depend>geolib2</depend>
+  <depend>geometry_msgs</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tmc_geometric_shapes_msgs</depend>
+  <depend>tmc_manipulation_msgs</depend>
 
-  <build_depend>geolib2</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>tmc_manipulation_msgs</build_depend>
-
-  <exec_depend>geolib2</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>tmc_manipulation_msgs</exec_depend>
-
-  <test_depend>catkin_lint_cmake</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
-    <ed plugin="${prefix}/plugins.xml" />
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

@@ -8,9 +8,9 @@
 #include <ed/plugin.h>
 #include <ed/types.h>
 
-#include <ed_tmc_collision_msgs/GetCollisionEnvironment.h>
+#include <ed_tmc_collision_interfaces/srv/get_collision_environment.hpp>
 
-#include <ros/callback_queue.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 #include <string>
@@ -70,11 +70,14 @@ private:
      * @param res service result
      * @return bool Success
      */
-    bool srvGetCollisionEnvironment(const ed_tmc_collision_msgs::GetCollisionEnvironment::Request& req, ed_tmc_collision_msgs::GetCollisionEnvironment::Response& res);
+    void srvGetCollisionEnvironment(
+        const std::shared_ptr<ed_tmc_collision_interfaces::srv::GetCollisionEnvironment::Request> req,
+        std::shared_ptr<ed_tmc_collision_interfaces::srv::GetCollisionEnvironment::Response> res);
 
     // Services
-    ros::ServiceServer srv_get_collision_environment_;
-    ros::CallbackQueue cb_queue_;
+    rclcpp::Service<ed_tmc_collision_interfaces::srv::GetCollisionEnvironment>::SharedPtr srv_get_collision_environment_;
+    rclcpp::CallbackGroup::SharedPtr cb_group_;
+    rclcpp::executors::SingleThreadedExecutor executor_;
 
     const ed::WorldModel* world_;
 

@@ -21,7 +21,7 @@
 #include <boost/asio/strand.hpp>
 #include <boost/config.hpp>
 
-#include <ros/console.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <algorithm>
 #include <cstdlib>
@@ -213,7 +213,7 @@ handle_request(
 void
 fail(beast::error_code ec, char const* what)
 {
-    ROS_DEBUG_STREAM_NAMED("boost_http_server", what << ": " << ec.message());
+    RCLCPP_DEBUG_STREAM(rclcpp::get_logger("boost_http_server"), what << ": " << ec.message());
 }
 
 // Handles an HTTP server connection

@@ -1,79 +1,85 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(ed_tmc_collision)
 
-add_compile_options(-Wall -Werror=all)
-add_compile_options(-Wextra -Werror=extra)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-Wall -Werror=all -Wextra -Werror=extra)
 
-find_package(catkin REQUIRED COMPONENTS
-  ed
-  ${PROJECT_NAME}_msgs
-  geolib2
-  geometry_msgs
-  roscpp
-  tmc_manipulation_msgs
-)
-
+find_package(ament_cmake REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(ed REQUIRED)
+find_package(ed_tmc_collision_interfaces REQUIRED)
+find_package(geolib2 REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tmc_geometric_shapes_msgs REQUIRED)
+find_package(tmc_manipulation_msgs REQUIRED)
 
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package(
-#  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}_plugin
-  CATKIN_DEPENDS ed ${PROJECT_NAME}_msgs roscpp
-  DEPENDS Boost
-)
+add_library(boost_http_server SHARED src/boost_http_server.cpp src/boost_http_server.h)
+target_link_libraries(boost_http_server PUBLIC Boost::filesystem rclcpp::rclcpp)
 
-###########
-## Build ##
-###########
+add_library(http_server SHARED src/http_server.cpp src/http_server.h)
+target_link_libraries(http_server PUBLIC boost_http_server)
 
-include_directories(
-# include
-  SYSTEM
-  ${Boost_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-)
-
-add_library(boost_http_server src/boost_http_server.cpp src/boost_http_server.h)
-target_link_libraries(boost_http_server ${catkin_LIBRARIES})
-
-add_library(http_server src/http_server.cpp src/http_server.h)
-target_link_libraries(http_server boost_http_server ${catkin_LIBRARIES})
-
-
-add_library(${PROJECT_NAME}_plugin
+add_library(${PROJECT_NAME}_plugin SHARED
   src/tmc_collision_plugin.cpp
   src/tmc_collision_plugin.h
 )
-target_link_libraries(${PROJECT_NAME}_plugin http_server ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-add_dependencies(${PROJECT_NAME}_plugin ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_plugin PUBLIC
+  ed::ed_core
+  ${ed_tmc_collision_interfaces_TARGETS}
+  geolib2::geolib
+  ${geometry_msgs_TARGETS}
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  tf2::tf2
+  tf2_ros::tf2_ros
+  ${tmc_geometric_shapes_msgs_TARGETS}
+  ${tmc_manipulation_msgs_TARGETS}
+  http_server
+)
+
+pluginlib_export_plugin_description_file(ed plugins.xml)
 
 #############
 ## Install ##
 #############
 
-install(
-  FILES plugins.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+install(FILES plugins.xml DESTINATION share/${PROJECT_NAME})
 
 install(
   TARGETS
     boost_http_server
     ${PROJECT_NAME}_plugin
     http_server
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
-#############
-## Testing ##
-#############
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_dependencies(
+  Boost
+  ed
+  ed_tmc_collision_interfaces
+  geolib2
+  geometry_msgs
+  pluginlib
+  rclcpp
+  tf2
+  tf2_ros
+  tmc_geometric_shapes_msgs
+  tmc_manipulation_msgs
+)
 
-if(CATKIN_ENABLE_TESTING)
-  find_package(catkin_lint_cmake REQUIRED)
-  catkin_add_catkin_lint_test("-W2")
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
+
+ament_package()
